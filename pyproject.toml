@@ -29,8 +29,55 @@ Documentation = "https://gitlab.com/Saikat Karmakar/hatch-demo-yt#readme"
 Issues = "https://gitlab.com/Saikat Karmakar/hatch-demo-yt/issues"
 Source = "https://gitlab.com/Saikat Karmakar/hatch-demo-yt"
 
+[project.scripts]
+yt_hello = "hatch_demo_yt.main:print_fn"
+
 [tool.hatch.version]
 path = "src/hatch_demo_yt/__about__.py"
+
+
+[tool.hatch.envs.default]
+installer = "uv"
+
+[tool.hatch.envs.docs]
+dependencies = [
+  "mkdocs",
+  "mkdocs-material",
+  "mkdocstrings-python",
+]
+[tool.hatch.envs.docs.scripts]
+build = "mkdocs build --clean --strict"
+serve = "mkdocs serve --dev-addr localhost:8001"
+
+[tool.hatch.envs.test]
+dependencies = [
+  "pytest",
+  "pytest-cov"
+]
+
+[[tool.hatch.envs.test.matrix]]
+python = ["3.9", "3.10", "3.11", "3.12"]
+feature = ["foo", "bar"]
+
+
+
+[tool.hatch.envs.test.scripts]
+test = "pytest"
+
+[[tool.hatch.envs.test.matrix]]
+tool = ["uv", "pip"]
+
+[tool.hatch.envs.test.overrides]
+matrix.feature.platforms = [
+  { value = "linux"},
+  { value = "windows"},
+  { value = "macos"},
+]
+
+matrix.tool.installer = { value = "{matrix:tool}" }
+matrix.tool.scripts = [
+  { key = "pip", value = "{env:HATCH_UV} pip {args}", if = ["uv"] },
+]
 
 [tool.hatch.envs.types]
 extra-dependencies = [
@@ -43,3 +90,4 @@ check = "mypy --install-types --non-interactive {args:src/hatch_demo_yt tests}"
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
